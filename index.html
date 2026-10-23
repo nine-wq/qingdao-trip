@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ชิงเต่า 8 วัน 7 คืน</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Sarabun:wght@400;500;700&display=swap">
+<style>
+/* Layout: one-column phone itinerary — sticky day strip, day map, numbered stops, timeline, reference sections */
+:root{
+  --bg:#f3f6f8; --surface:#ffffff; --ink:#14232e; --muted:#5d6f7b; --line:#d9e2e8;
+  --sea:#14628f; --sea-soft:#e2eef6; --roof:#c2452d; --roof-soft:#fbe9e4;
+  --water:#cfe3ef; --land:#f7f3ea; --coast:#a9c4d4;
+  --display:"Mitr","Sarabun",system-ui,sans-serif;
+  --body:"Sarabun",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e171d; --surface:#16232c; --ink:#e6eef3; --muted:#9bb0bd; --line:#2a3b47;
+  --sea:#6db4e0; --sea-soft:#1a3242; --roof:#ef8a72; --roof-soft:#3a2420;
+  --water:#10293a; --land:#22313b; --coast:#36556a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e171d; --surface:#16232c; --ink:#e6eef3; --muted:#9bb0bd; --line:#2a3b47;
+  --sea:#6db4e0; --sea-soft:#1a3242; --roof:#ef8a72; --roof-soft:#3a2420;
+  --water:#10293a; --land:#22313b; --coast:#36556a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--sea)}
+.wrap{max-width:680px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.hero{background:var(--sea);color:#fff}
+header.hero .wrap{padding-block:28px 22px;display:grid;gap:6px}
+.eyebrow{font-size:13px;letter-spacing:.06em;opacity:.85}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(28px,8vw,40px);line-height:1.15;margin:0;text-wrap:balance}
+.hero p{margin:0;opacity:.92}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.fact{background:rgba(255,255,255,.14);border-radius:999px;padding:4px 12px;font-size:14px}
+nav.days{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+nav.days .wrap{display:flex;gap:8px;overflow-x:auto;padding-block:10px;scrollbar-width:none}
+nav.days .wrap::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer;display:grid;line-height:1.25;text-align:left}
+.chip b{font-family:var(--display);font-weight:500}
+.chip small{color:var(--muted);font-size:12px}
+.chip[aria-pressed="true"]{background:var(--roof);border-color:var(--roof);color:#fff}
+.chip[aria-pressed="true"] small{color:#fff;opacity:.85}
+.chip:focus-visible,a:focus-visible,button:focus-visible{outline:3px solid var(--sea);outline-offset:2px}
+main .wrap{padding-block:20px 40px;display:grid;gap:28px}
+#day{display:grid;gap:18px}
+.dayhead{display:grid;gap:4px}
+.dayhead .date{color:var(--roof);font-weight:700;font-size:14px}
+h2{font-family:var(--display);font-weight:500;font-size:22px;line-height:1.3;margin:0;text-wrap:balance}
+h3.sub{font-family:var(--display);font-weight:500;font-size:17px;margin:0}
+.transit{display:inline-flex;gap:6px;align-items:center;background:var(--sea-soft);color:var(--sea);border-radius:8px;padding:3px 10px;font-size:14px;font-weight:500;width:fit-content}
+
+/* map */
+.map{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--water)}
+.map svg{display:block;width:100%;height:auto}
+.map .landp{fill:var(--land);stroke:var(--coast);stroke-width:1;stroke-linejoin:round}
+.map .route{fill:none;stroke:var(--sea);stroke-width:2.5;stroke-dasharray:6 5;stroke-linecap:round}
+.map .mk{cursor:pointer}
+.map .mk circle{fill:var(--roof);stroke:var(--surface);stroke-width:2.5}
+.map .mk text{fill:#fff;font:700 12px var(--body);text-anchor:middle;dominant-baseline:central}
+.map .mk.on circle{fill:var(--sea)}
+.map .lbl{fill:var(--ink);font:500 11px var(--body);paint-order:stroke;stroke:var(--land);stroke-width:3px;stroke-linejoin:round}
+.map .edge{fill:var(--muted);font:500 11px var(--body)}
+.map .scale line{stroke:var(--ink);stroke-width:2}
+.map .scale text{fill:var(--ink);font:500 11px var(--body)}
+.mapcap{display:flex;justify-content:space-between;gap:8px;padding:6px 12px;background:var(--surface);border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+
+/* stops */
+ol.stops{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.stop{display:grid;grid-template-columns:28px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;transition:border-color .2s,box-shadow .2s}
+.stop.on{border-color:var(--sea);box-shadow:0 0 0 2px var(--sea-soft)}
+.num{width:26px;height:26px;border-radius:50%;background:var(--roof);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
+.stop .txt{min-width:0;display:grid;gap:4px}
+.stop .name{font-weight:700;line-height:1.35}
+.stop .name .zh{font-weight:400;color:var(--muted);font-size:14px;margin-left:4px}
+.stop p{margin:0;color:var(--muted);font-size:15px}
+a.amap{display:inline-flex;align-items:center;gap:5px;text-decoration:none;color:var(--sea);font-size:14px;font-weight:500;width:fit-content}
+a.amap:hover{text-decoration:underline}
+.act{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.cp{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:2px 10px;cursor:pointer}
+.cp:hover{border-color:var(--sea)}
+a.web{font-size:13px;color:var(--muted)}
+
+/* timeline */
+ol.tl{list-style:none;margin:0;padding:0}
+.tl li{display:grid;grid-template-columns:64px 1fr;gap:12px;position:relative;padding-bottom:16px}
+.tl li::before{content:"";position:absolute;left:75px;top:10px;bottom:0;width:2px;background:var(--line)}
+.tl li:last-child::before{display:none}
+.tl .time{font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted);line-height:1.35;padding-top:2px}
+.tl .body{position:relative;padding-left:16px;min-width:0}
+.tl .body::before{content:"";position:absolute;left:-6px;top:7px;width:10px;height:10px;border-radius:50%;background:var(--muted);box-shadow:0 0 0 3px var(--bg)}
+.tl .body p{margin:0}
+.refs{display:inline-flex;gap:4px;margin-left:4px;vertical-align:1px}
+.refs span{width:20px;height:20px;border-radius:50%;background:var(--roof);color:#fff;display:inline-grid;place-items:center;font-size:11px;font-weight:700}
+
+.note{background:var(--roof-soft);border-radius:12px;padding:14px 16px;display:grid;gap:6px}
+.note h3{margin:0;font-family:var(--display);font-weight:500;font-size:17px;color:var(--roof)}
+.note p{margin:0}
+section.ref{display:grid;gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:8px}
+.card h3{margin:0;font-family:var(--display);font-weight:500;font-size:17px}
+.card p{margin:0;color:var(--muted)}
+.card .links{display:grid;gap:8px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+td,th{text-align:left;padding:9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:12px}
+td small{color:var(--muted);display:block;font-size:13px}
+tr.total td{border-bottom:none;font-weight:700;color:var(--roof);padding-top:12px}
+.sectitle{font-family:var(--display);font-weight:500;font-size:20px;margin:0;border-top:2px solid var(--ink);padding-top:14px}
+footer{color:var(--muted);font-size:13px;text-align:center;padding-bottom:24px}
+@media (prefers-reduced-motion:no-preference){#day.anim{animation:fade .25s ease}}
+@keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">QINGDAO · 青岛 · 6–13 พ.ย.</div>
+    <h1>ชิงเต่า 8 วัน 7 คืน</h1>
+    <p>เทรคกิ้งเขาเหลาซาน เกาะหลิงซาน เมืองเก่าหลังคาแดง และซีฟู้ดกับเบียร์สด</p>
+    <div class="facts">
+      <span class="fact">🌡 8–15°C เตรียมเสื้อกันลม</span>
+      <span class="fact">🚇 Metro 06:00–22:30</span>
+      <span class="fact">💳 สแกน Alipay ขึ้น Metro</span>
+    </div>
+  </div>
+</header>
+
+<nav class="days" aria-label="เลือกวัน"><div class="wrap" id="chips"></div></nav>
+
+<main><div class="wrap">
+  <section id="day" aria-live="polite"></section>
+
+  <section class="ref">
+    <h2 class="sectitle">ที่พัก</h2>
+    <div class="card">
+      <h3>โซน 1 · เมืองเก่า / สถานีรถไฟ</h3>
+      <p>คืนที่ 1–3 และ 5–7 · ใกล้สถานี Metro 青岛站 เดินไปสะพานจ้านเฉียวและถนน Zhongshan ได้</p>
+      <div class="links" data-p="qdst,atour,mercure"></div>
+    </div>
+    <div class="card">
+      <h3>โซน 2 · ฝั่งอ่าว Huangdao</h3>
+      <p>คืนที่ 4 · ใกล้สถานี 积米崖 สำหรับขึ้นเรือไปเกาะหลิงซาน</p>
+      <div class="links" data-p="jimiya,citigo"></div>
+    </div>
+  </section>
+
+  <section class="ref">
+    <h2 class="sectitle">งบประมาณต่อคน</h2>
+    <div class="card" style="overflow-x:auto">
+      <table>
+        <thead><tr><th>หมวด</th><th class="n">หยวน</th></tr></thead>
+        <tbody>
+          <tr><td>Metro<small>สาย 1, 2, 3, 4, 8, 11, 13 ตลอด 8 วัน รวมไป-กลับสนามบิน</small></td><td class="n">100–120</td></tr>
+          <tr><td>เรือเฟอร์รี่<small>ไป-กลับ เกาะหลิงซาน</small></td><td class="n">60–120</td></tr>
+          <tr><td>ค่าเข้าชม & รถอุทยาน<small>เหลาซาน 2 เส้นทาง, พิพิธภัณฑ์เบียร์, โบสถ์, เสี่ยวหยูซาน</small></td><td class="n">280–320</td></tr>
+          <tr><td>อาหาร & เครื่องดื่ม<small>เฉลี่ย 100–150 หยวน/วัน</small></td><td class="n">800–1,000</td></tr>
+          <tr class="total"><td>รวม (ไม่รวมโรงแรมและตั๋วเครื่องบิน)</td><td class="n">1,240–1,560</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>แผนที่ในหน้านี้เป็นภาพโดยประมาณ กด “เปิดใน AMap” เพื่อค้นหาในแอป หรือกดคัดลอกชื่อจีนไปวางในช่องค้นหาของ AMap · ราคาและเวลาควรตรวจสอบอีกครั้งก่อนเดินทาง</footer>
+</div></main>
+
+<script>
+const LAND=[[[120.85,36.5],[120.85,36.3933],[120.8442,36.4232],[120.8262,36.4333],[120.8334,36.4553],[120.8082,36.4637],[120.7722,36.4637],[120.7506,36.4586],[120.747,36.4553],[120.7398,36.4434],[120.7362,36.4384],[120.7326,36.4367],[120.7182,36.4316],[120.7146,36.4282],[120.6858,36.3877],[120.6894,36.3708],[120.711,36.3489],[120.7218,36.3303],[120.7074,36.3219],[120.693,36.3252],[120.6678,36.3354],[120.6606,36.3371],[120.6462,36.3303],[120.6426,36.3219],[120.6498,36.3117],[120.6606,36.3016],[120.6534,36.2881],[120.6606,36.278],[120.6714,36.2661],[120.675,36.2509],[120.6858,36.1885],[120.693,36.1749],[120.7038,36.1564],[120.6966,36.1446],[120.6282,36.1158],[120.6246,36.1175],[120.621,36.1209],[120.6174,36.1226],[120.5922,36.1091],[120.5634,36.1158],[120.5526,36.1142],[120.5454,36.099],[120.5346,36.0922],[120.513,36.0888],[120.4734,36.0888],[120.4626,36.0855],[120.4374,36.0686],[120.423,36.0618],[120.369,36.0483],[120.3546,36.0416],[120.3402,36.05],[120.3258,36.0567],[120.3078,36.0618],[120.2934,36.0618],[120.2934,36.0686],[120.3078,36.0787],[120.3114,36.0905],[120.315,36.104],[120.3222,36.1192],[120.3366,36.1361],[120.3618,36.1918],[120.3474,36.2138],[120.3402,36.2222],[120.3222,36.2256],[120.3114,36.2661],[120.3078,36.2746],[120.2862,36.2644],[120.2718,36.234],[120.2754,36.2037],[120.3006,36.1918],[120.2862,36.1766],[120.2646,36.18],[120.243,36.1918],[120.2286,36.1918],[120.225,36.1935],[120.225,36.1969],[120.2214,36.1986],[120.2178,36.1986],[120.2178,36.2222],[120.1854,36.2189],[120.1458,36.2087],[120.117,36.2104],[120.1134,36.2172],[120.1098,36.2222],[120.1098,36.2256],[120.0954,36.2256],[120.0918,36.2239],[120.0882,36.2155],[120.0846,36.2087],[120.0918,36.2053],[120.1062,36.2003],[120.1098,36.1885],[120.1062,36.1749],[120.0882,36.1479],[120.0882,36.1294],[120.0882,36.1125],[120.099,36.0956],[120.117,36.0871],[120.135,36.0838],[120.153,36.077],[120.1674,36.0618],[120.171,36.0466],[120.171,36.0095],[120.1746,35.9943],[120.1854,35.9841],[120.1962,35.9858],[120.2286,35.9993],[120.2286,35.9723],[120.243,35.974],[120.2754,35.9943],[120.279,35.9976],[120.2826,36.0061],[120.2862,36.0112],[120.297,36.0027],[120.3042,35.9943],[120.3042,35.9875],[120.3042,35.9808],[120.3006,35.9723],[120.2862,35.9622],[120.243,35.9537],[120.2286,35.9419],[120.1854,35.9031],[120.1746,35.8896],[120.171,35.9082],[120.1782,35.92],[120.189,35.9318],[120.189,35.9453],[120.1674,35.9385],[120.1638,35.9335],[120.1458,35.9132],[120.1422,35.9082],[120.135,35.9048],[120.1062,35.9048],[120.0954,35.9014],[120.0522,35.8626],[120.0378,35.8423],[120.0198,35.7596],[120.0018,35.7275],[119.9694,35.7325],[119.9514,35.7545],[119.937,35.7612],[119.9262,35.7562],[119.9082,35.7444],[119.901,35.7359],[119.9298,35.7106],[119.937,35.7055],[119.9298,35.6988],[119.9082,35.6802],[119.901,35.6718],[119.901,35.6599],[119.9046,35.6532],[119.9082,35.6447],[119.9082,35.6346],[119.9046,35.6245],[119.8974,35.6211],[119.8866,35.6177],[119.8758,35.6127],[119.8614,35.6059],[119.85,35.6123],[119.85,35.55],[119.85,35.55],[119.85,36.5]],[[120.183,35.772],[120.1826,35.7774],[120.1815,35.7829],[120.1798,35.7869],[120.1775,35.7885],[120.1748,35.7884],[120.172,35.7882],[120.1692,35.7884],[120.1665,35.7885],[120.1642,35.7869],[120.1625,35.7829],[120.1614,35.7774],[120.161,35.772],[120.1614,35.7676],[120.1625,35.7639],[120.1642,35.76],[120.1665,35.7555],[120.1692,35.7517],[120.172,35.7501],[120.1748,35.7517],[120.1775,35.7555],[120.1798,35.76],[120.1815,35.7639],[120.1826,35.7676]]];
+// key: [zh, th, lat, lng, description]
+const P={
+ airport:["胶东国际机场","สนามบินเจียวตง",36.362,120.088,"สนามบินนานาชาติแห่งใหม่ของชิงเต่า อยู่นอกเมืองไปทางเหนือราว 40 กม. Metro สาย 8 วิ่งตรงเข้าเมือง"],
+ qdnorth:["青岛北站","สถานี Qingdao North",36.169,120.375,"สถานีรถไฟความเร็วสูงฝั่งเหนือ เป็นจุดเปลี่ยนสายจาก Metro สาย 8 เข้าสู่ตัวเมือง"],
+ qdst:["青岛站","สถานี Qingdao Station",36.0644,120.3123,"สถานีรถไฟเก่าทรงเยอรมันมีหอนาฬิกา อยู่ติดเมืองเก่าและใกล้ที่พักโซน 1"],
+ atour:["亚朵酒店 中山路","Atour Hotel Zhongshan Rd",36.0672,120.3170,"ที่พักแนะนำย่านถนน Zhongshan เดินถึงโบสถ์และย่านกินได้"],
+ mercure:["美居酒店 青岛火车站","Mercure Qingdao Station",36.0652,120.3108,"ที่พักแนะนำติดสถานีรถไฟ สะดวกเดินทางวันแรกและวันสุดท้าย"],
+ zhanqiao:["栈桥","สะพานจ้านเฉียว",36.0612,120.3165,"สะพานยื่นลงทะเลที่เป็นสัญลักษณ์ของเมือง สร้างปลายศตวรรษที่ 19 ปลายสะพานมีศาลาแปดเหลี่ยมฮุยหลานเก๋อ ช่วงปลายฤดูใบไม้ร่วงมีนกนางนวลมาให้อาหาร"],
+ stmichael:["圣弥厄尔大教堂","โบสถ์เซนต์ไมเคิล",36.0680,120.3176,"โบสถ์คาทอลิกหอคอยคู่สร้างช่วงทศวรรษ 1930 จุดถ่ายรูปยอดนิยมของเมืองเก่า ตอนค่ำเปิดไฟประดับ"],
+ zhongshan:["中山路","ถนน Zhongshan",36.0660,120.3195,"ถนนการค้าเก่าแก่ ตึกยุคอาณานิคมเรียงราย ลองเกี๊ยวไส้ปลาอินทรี (鲅鱼水饺) อาหารขึ้นชื่อของชิงเต่า"],
+ puli:["浦里站","สถานี Puli",36.300,120.620,"สถานี Metro สาย 11 ใช้ทางออก C แล้วต่อรถบัส 620 ไปประตู Yangkou"],
+ yangkouvc:["仰口游客中心","ศูนย์บริการ Yangkou",36.247,120.668,"จุดซื้อตั๋วอุทยานเหลาซานฝั่ง Yangkou และขึ้นรถในอุทยาน"],
+ yangkou:["崂山仰口景区","เหลาซาน Yangkou",36.235,120.676,"เส้นทางเดินหินแกรนิตฝั่งตะวันออกเฉียงเหนือของเขาเหลาซาน ผ่านถ้ำและโขดหิน ขึ้นยอดเห็นอ่าวทะเลกว้าง เหลาซานเป็นภูเขาศักดิ์สิทธิ์ของลัทธิเต๋า"],
+ qingshan:["青山渔村","หมู่บ้านชิงซาน",36.140,120.683,"หมู่บ้านชาวประมงเก่าบนเชิงเขาริมทะเล บ้านหินเรียงขั้นบันได และไร่ชาเขียวเหลาซาน"],
+ jimiya:["积米崖站","สถานี Jimiya",35.941,120.112,"สถานี Metro สาย 13 ฝั่งเวสต์โคสต์ เดินต่อไปท่าเรือราว 10 นาที"],
+ jimiyaport:["积米崖港","ท่าเรือ Jimiya",35.936,120.122,"ท่าเรือเฟอร์รี่ไปเกาะหลิงซาน ควรมาถึงก่อนเรือออกอย่างน้อย 20 นาที"],
+ lingshan:["灵山岛","เกาะหลิงซาน",35.772,120.172,"เกาะภูเขากลางทะเลที่สูงที่สุดแห่งหนึ่งของจีนตอนเหนือ เป็นอุทยานธรณีวิทยา มีหน้าผาหินชั้นสีสันแปลกตาและเส้นทางเดินรอบเกาะ"],
+ shell:["灵山岛贝壳楼","บ้านเปลือกหอย",35.764,120.178,"บ้านบนเกาะที่ผนังประดับด้วยเปลือกหอยจำนวนมาก จุดแวะถ่ายรูประหว่างเดินรอบเกาะ"],
+ citigo:["城家酒店 唐岛湾","CitiGO Hotel Tangdaowan",35.952,120.170,"ที่พักคืนนี้ฝั่งอ่าวถังเต่า ใกล้ท่าเรือ ไม่ต้องย้อนเข้าเมืองหลังเดินเกาะ"],
+ maidao:["麦岛站","สถานี Maidao",36.0635,120.4255,"สถานี Metro สาย 2 เดินต่อลงทะเลราว 15 นาทีถึงเกาะเสี่ยวม่าย"],
+ xiaomai:["小麦岛","เกาะเสี่ยวม่าย",36.0540,120.4330,"เกาะเล็กเชื่อมฝั่งด้วยถนน เป็นเนินหญ้าโล่งริมทะเล มองเห็นเส้นขอบฟ้าเมืองใหม่ เข้าฟรี"],
+ olympic:["奥帆中心","ศูนย์เรือใบโอลิมปิก",36.0535,120.3885,"สนามแข่งเรือใบโอลิมปิก 2008 ท่าจอดเรือยอชต์ริมอ่าวฝูซาน ทางเดินเลียบทะเลวิวตึกสูง"],
+ lovers:["情人坝","เขื่อนคู่รัก",36.0490,120.3950,"เขื่อนกันคลื่นยื่นลงทะเล จุดชมพระอาทิตย์ตกและวิวเมืองยอดนิยม"],
+ huiquan:["汇泉广场站","สถานี Huiquan Square",36.0590,120.3390,"สถานี Metro สาย 3 ใกล้หาดหุ้ยฉวนและเนินเสี่ยวหยูซาน"],
+ xiaoyushan:["小鱼山公园","สวนเสี่ยวหยูซาน",36.0585,120.3305,"เนินเขาเล็กใจกลางเมืองเก่า ศาลาบนยอดชมวิวหลังคาแดง โบสถ์ สะพานจ้านเฉียว และหาดได้รอบทิศ"],
+ badaguan:["八大关","ย่านบาต้ากวน",36.0535,120.3500,"ย่านวิลล่ายุคต้นศตวรรษที่ 20 หลายสไตล์ยุโรป แต่ละถนนปลูกต้นไม้ต่างชนิด ปลายฤดูใบไม้ร่วงใบแปะก๊วยและเมเปิ้ลเปลี่ยนสี"],
+ huashi:["花石楼","คฤหาสน์ Huashi Villa",36.0505,120.3555,"คฤหาสน์หินแกรนิตทรงปราสาทริมหาด ขึ้นไปชมวิวทะเลจากดาดฟ้าได้"],
+ taidongst:["台东站","สถานี Taidong",36.0870,120.3555,"สถานี Metro สาย 2 ใจกลางย่านการค้าไท่ตง"],
+ beer:["青岛啤酒博物馆","พิพิธภัณฑ์เบียร์ชิงเต่า",36.0800,120.3460,"อยู่ในโรงเบียร์เก่าที่ก่อตั้งปี 1903 จัดแสดงประวัติและขั้นตอนการผลิต ตั๋วรวมเบียร์สดให้ชิม"],
+ yingkou:["营口路市场","ตลาดยิงโข่ว",36.0830,120.3500,"ตลาดสดของคนท้องถิ่น ซื้อหอย ปู กุ้ง แล้วให้ร้านรอบตลาดปรุงโดยคิดค่าทำ เบียร์สดใส่ถุงพลาสติกเป็นภาพคุ้นตาของที่นี่"],
+ dahedong:["大河东站","สถานี Dahedong",36.1650,120.5850,"สถานีปลายทาง Metro สาย 4 ใกล้ศูนย์บริการนักท่องเที่ยวฝั่งเหนือของเหลาซาน"],
+ jufeng:["崂山巨峰","ยอดจูเฟิง",36.1700,120.6120,"ยอดสูงสุดของเขาเหลาซาน ราว 1,130 ม. เส้นทางผ่านสะพานแขวนและหน้าผา วันฟ้าใสมองเห็นทะเล"],
+ taidong:["台东步行街","ถนนคนเดินไท่ตง",36.0855,120.3565,"ถนนคนเดินย่านการค้าของคนท้องถิ่น ภาพกราฟฟิตี้บนตึก ร้านของฝากถั่วรสเบียร์และปลาแผ่น"]
+};
+const DAYS=[
+ {d:"6 พ.ย.",t:"ถึงชิงเต่า เช็กอิน & เมืองเก่ายามค่ำ",tr:"Metro สาย 8 → 1/3 · 75 นาที",focus:["qdst","zhanqiao","stmichael","zhongshan"],items:[
+  ["14:00–15:30","ถึงสนามบิน นั่ง Metro สาย 8 เปลี่ยนสายที่ Qingdao North ลงที่ Qingdao Station (75 นาที, 9 หยวน) เช็กอินโซนเมืองเก่า",["airport","qdnorth","qdst"]],
+  ["16:00–17:30","เดินไปสะพานจ้านเฉียว ชมฝูงนกนางนวลริมหาด",["zhanqiao"]],
+  ["17:40–19:00","เดินต่อ 10 นาทีไปโบสถ์เซนต์ไมเคิล ชมไฟประดับโบสถ์",["stmichael"]],
+  ["19:15","มื้อเย็นเกี๊ยวปลาอินทรีที่ถนนคนเดิน Zhongshan (~50 หยวน)",["zhongshan"]]]},
+ {d:"7 พ.ย.",t:"เทรคกิ้งเขาเหลาซาน เส้นทาง Yangkou วิวทะเล",tr:"Metro สาย 11 + Bus · 80 นาที",items:[
+  ["07:30–08:50","Metro สาย 1/3 ต่อสาย 11 ลงสถานี Puli ทางออก C ต่อ Bus 620 ไปศูนย์บริการ Yangkou",["puli","yangkouvc"]],
+  ["09:00–15:00","เดินขึ้นยอดเขาชมวิวทะเล 180 องศา (6 ชม., บัตร 90 หยวน, กระเช้าขาลง 35 หยวน)",["yangkou"]],
+  ["15:30–17:00","นั่งบัส 20 นาที แวะหมู่บ้านประมงชิงซาน ชมไร่ชาบนเขา",["qingshan"]],
+  ["17:30","Metro สาย 11 กลับเข้าเมืองเก่า",[]]]},
+ {d:"8 พ.ย.",t:"เรือเฟอร์รี่ & เทรคกิ้งเกาะหลิงซาน",tr:"Metro สาย 1/13 + เรือ · 60 นาที",items:[
+  ["07:00–08:00","Metro สาย 1 ต่อสาย 13 ลงสถานี Jimiya เดิน 10 นาทีไปท่าเรือ",["jimiya","jimiyaport"]],
+  ["08:30–09:15","เรือรอบเช้าข้ามไปเกาะหลิงซาน (40 นาที, ไป-กลับ 60–120 หยวน)",["lingshan"]],
+  ["09:30–15:00","เดินรอบเกาะ 5.5 ชม. ชมผาหิน และบ้านเปลือกหอย",["shell"]],
+  ["15:30–16:15","เรือรอบสุดท้ายกลับฝั่ง เช็กอินโรงแรมโซน Huangdao",["citigo"]]],
+  note:["ตารางเรือ Jimiya ↔ หลิงซาน","ขาไป 08:30 และ 13:30 · ขากลับ 09:00 และ 15:30 · ไปถึงท่าเรือก่อนเรือออก 20 นาที และกลับมาถึงท่าเรือบนเกาะก่อน 15:10 เพื่อขึ้นรอบสุดท้าย"]},
+ {d:"9 พ.ย.",t:"เกาะเสี่ยวม่าย & ทางเดินเลียบทะเล",tr:"Metro สาย 2 · 30 นาที",items:[
+  ["09:00–09:30","Metro สาย 2 ลงสถานี Maidao เดินต่อ 15 นาที",["maidao"]],
+  ["09:30–12:00","เกาะเสี่ยวม่าย เนินหญ้าเขียวริมทะเล (เข้าฟรี)",["xiaomai"]],
+  ["13:30–17:00","เดินเลียบหาดผ่านศูนย์เรือใบโอลิมปิกไปเขื่อนคู่รัก (~4 กม., 3.5 ชม.)",["olympic","lovers"]],
+  ["17:30","Metro กลับโรงแรมโซนเมืองเก่า",[]]]},
+ {d:"10 พ.ย.",t:"สวนเสี่ยวหยูซาน & ย่านบาต้ากวน",tr:"Metro สาย 3 · 20 นาที",items:[
+  ["09:00–11:30","Metro สาย 3 ลงสถานี Huiquan Square เดินขึ้นสวนเสี่ยวหยูซาน ชมวิวหลังคาแดงและป่าเปลี่ยนสี",["huiquan","xiaoyushan"]],
+  ["13:00–16:30","เดินชมใบแปะก๊วยและเมเปิ้ลย่านบาต้ากวน และคฤหาสน์หิน Huashi Villa",["badaguan","huashi"]]]},
+ {d:"11 พ.ย.",t:"พิพิธภัณฑ์เบียร์ & ตลาดซีฟู้ดยิงโข่ว",tr:"Metro สาย 2 · 20 นาที",items:[
+  ["09:30–12:00","Metro สาย 2 ลงสถานี Taidong ชมพิพิธภัณฑ์เบียร์ชิงเต่า (60 หยวน รวมเบียร์สด 2 แก้ว)",["taidongst","beer"]],
+  ["12:30–16:30","เลือกซีฟู้ดปรุงสดที่ตลาดยิงโข่ว จิบเบียร์ถุง (~100–150 หยวน/คน)",["yingkou"]]]},
+ {d:"12 พ.ย.",t:"เขาเหลาซาน เส้นทาง Jufeng ยอดสูงสุด",tr:"Metro สาย 4 · 60 นาที",items:[
+  ["08:00–09:00","Metro สาย 4 ตรงถึงสถานีปลายทาง Dahedong ไปศูนย์บริการนักท่องเที่ยว",["dahedong"]],
+  ["09:15–16:00","เดินขึ้นยอดจูเฟิง 10–12 กม. 6.5 ชม. ข้ามสะพานแขวนและหน้าผา (อุทยาน+บัส 120 หยวน, กระเช้าเที่ยวละ 40 หยวน)",["jufeng"]]]},
+ {d:"13 พ.ย.",t:"ช้อปของฝากไท่ตง & กลับไทย",tr:"Metro สาย 8 ตรงสนามบิน · 60 นาที",items:[
+  ["09:00–11:30","ซื้อถั่วรสเบียร์และปลาแผ่นที่ถนนคนเดินไท่ตง",["taidong"]],
+  ["12:00–13:00","Metro สาย 8 จาก Qingdao North ตรงสู่สนามบิน เช็กอินกลับไทย",["qdnorth","airport"]]]}
+];
+
+const PIN='<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const UA=navigator.userAgent||"";
+const IOS=/iPhone|iPad|iPod/i.test(UA)||(/Macintosh/.test(UA)&&"ontouchend" in document),AND=/Android/i.test(UA);
+const kw=k=>{const z=P[k][0];return /青岛|胶东|崂山|灵山/.test(z)?z:"青岛 "+z};
+const appUrl=k=>{const q=encodeURIComponent(kw(k));
+  if(IOS)return"iosamap://poi?sourceApplication=qingdaoguide&name="+q+"&dev=0";
+  if(AND)return"androidamap://poi?sourceApplication=qingdaoguide&keywords="+q+"&dev=0";
+  return webUrl(k)};
+const webUrl=k=>"https://uri.amap.com/search?keyword="+encodeURIComponent(kw(k))+"&city=370200&view=map&src=qingdaoguide";
+const amapLink=(k,label)=>`<span class="act"><a class="amap" href="${appUrl(k)}" ${IOS||AND?"":'target="_blank" rel="noopener"'}>${PIN}${esc(label||P[k][1])}</a><button type="button" class="cp" data-zh="${esc(P[k][0])}">คัดลอก ${esc(P[k][0])}</button><a class="web" href="${webUrl(k)}" target="_blank" rel="noopener">เว็บ</a></span>`;
+document.addEventListener("click",async e=>{const b=e.target.closest(".cp");if(!b)return;
+  const t=b.dataset.zh,orig=b.textContent;
+  try{await navigator.clipboard.writeText(t);b.textContent="คัดลอกแล้ว ✓"}
+  catch(_){const r=document.createRange();r.selectNodeContents(b);const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent=t}
+  setTimeout(()=>{b.textContent=orig},1600)});
+document.querySelectorAll("[data-p]").forEach(el=>el.innerHTML=el.dataset.p.split(",").map(k=>amapLink(k)).join(""));
+
+/* ---------- map ---------- */
+const W=360,H=260,PAD=30;
+function drawMap(keys,focus){
+  const fk=focus||keys;
+  let la=fk.map(k=>P[k][2]),lo=fk.map(k=>P[k][3]);
+  let y0=Math.min(...la),y1=Math.max(...la),x0=Math.min(...lo),x1=Math.max(...lo);
+  const kx=Math.cos((y0+y1)/2*Math.PI/180);
+  // minimum span ~2.5 km so close stops separate
+  let spanX=Math.max((x1-x0)*kx,0.025),spanY=Math.max(y1-y0,0.025);
+  const s=Math.min((W-2*PAD)/spanX,(H-2*PAD)/spanY);
+  const cx=(x0+x1)/2,cy=(y0+y1)/2;
+  const px=(lng,lat)=>[W/2+(lng-cx)*kx*s,H/2-(lat-cy)*s];
+  const land=LAND.map(r=>"M"+r.map(p=>px(p[0],p[1]).map(v=>v.toFixed(1)).join(",")).join("L")+"Z").join("");
+  const pts=keys.map((k,i)=>{const[x,y]=px(P[k][3],P[k][2]);return{k,i,x,y,out:x<10||x>W-10||y<10||y>H-24}});
+  const inPts=pts.filter(p=>!p.out);
+  const route=pts.length>1?`<polyline class="route" points="${pts.map(p=>[Math.min(Math.max(p.x,12),W-12),Math.min(Math.max(p.y,12),H-26)].map(v=>v.toFixed(1)).join(",")).join(" ")}"/>`:"";
+  // scale bar: km per px
+  const kmPerPx=111.32/s, nice=[0.2,0.5,1,2,5,10,20,50].find(v=>v/kmPerPx>=50)||50, bar=nice/kmPerPx;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="แผนที่จุดเที่ยวของวันนี้"><path class="landp" d="${land}"/>${route}`;
+  // markers clamp position
+  pts.forEach(p=>{p.mx=Math.min(Math.max(p.x,14),W-14);p.my=Math.min(Math.max(p.y,14),H-28)});
+  const boxes=pts.map(p=>[p.mx-12,p.my-12,p.mx+12,p.my+12]);
+  boxes.push([W-26,H-58,W,H-30]); // compass
+  const hit=b=>boxes.some(o=>b[0]<o[2]&&b[2]>o[0]&&b[1]<o[3]&&b[3]>o[1]);
+  inPts.forEach(p=>{
+    const t=P[p.k][1],w=t.length*6.2+4,x=p.mx,y=p.my;
+    const cand=[[x+14,y-7,"start"],[x-14,y-7,"end"],[x-w/2,y-27,"mid"],[x-w/2,y+13,"mid"],[x+12,y-22,"start"],[x+12,y+6,"start"],[x-12,y-22,"end"],[x-12,y+6,"end"]];
+    let pick=null;
+    for(const[cx0,cy0,a]of cand){const bx=a==="end"?cx0-w:cx0,b=[bx,cy0,bx+w,cy0+14];
+      if(b[0]<2||b[2]>W-2||b[1]<2||b[3]>H-2)continue;if(!hit(b)){pick=[b,a];break}}
+    if(!pick)return; // number in list still identifies it
+    const[b]=pick;boxes.push(b);
+    svg+=`<text class="lbl" x="${b[0].toFixed(1)}" y="${(b[1]+11).toFixed(1)}">${esc(t)}</text>`});
+  const outs=pts.filter(p=>p.out);
+  outs.forEach(p=>{const ang=Math.atan2(p.y-p.my,p.x-p.mx)*180/Math.PI;
+    svg+=`<polygon points="0,-5 9,0 0,5" fill="var(--muted)" transform="translate(${p.mx.toFixed(1)},${p.my.toFixed(1)}) rotate(${ang.toFixed(0)}) translate(13,0)"/>`});
+  pts.forEach(p=>{
+    svg+=`<g class="mk" data-i="${p.i}" tabindex="0" role="button" aria-label="${esc(P[p.k][1])}"><circle cx="${p.mx.toFixed(1)}" cy="${p.my.toFixed(1)}" r="11"/><text x="${p.mx.toFixed(1)}" y="${p.my.toFixed(1)}">${p.i+1}</text></g>`});
+  drawMap.outs=outs.map(p=>{const km=Math.round(Math.hypot(p.x-p.mx,p.y-p.my)*kmPerPx);return`หมุด ${p.i+1} ${P[p.k][1]} อยู่นอกกรอบ อีก ~${km} กม.`});
+  svg+=`<g class="scale"><line x1="12" y1="${H-12}" x2="${(12+bar).toFixed(1)}" y2="${H-12}"/><line x1="12" y1="${H-17}" x2="12" y2="${H-7}"/><line x1="${(12+bar).toFixed(1)}" y1="${H-17}" x2="${(12+bar).toFixed(1)}" y2="${H-7}"/><text x="${(18+bar).toFixed(1)}" y="${H-8}">${nice} กม.</text></g>`;
+  svg+=`<text x="${W-14}" y="${H-46}" text-anchor="middle" style="fill:var(--ink);font:700 12px var(--body)">N</text><polygon points="${W-14},${H-42} ${W-19},${H-30} ${W-14},${H-33} ${W-9},${H-30}" style="fill:var(--ink)"/></svg>`;
+  return svg;
+}
+
+/* ---------- day view ---------- */
+const chips=document.getElementById("chips"),day=document.getElementById("day");
+function highlight(i,scroll){
+  day.querySelectorAll(".stop").forEach((el,k)=>el.classList.toggle("on",k===i));
+  day.querySelectorAll(".mk").forEach(el=>el.classList.toggle("on",+el.dataset.i===i));
+  if(scroll){const el=day.querySelector("#stop"+i);if(el)el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"center"})}
+}
+function show(i){
+  const D=DAYS[i];
+  chips.querySelectorAll(".chip").forEach((c,k)=>c.setAttribute("aria-pressed",k===i));
+  const keys=[];D.items.forEach(it=>it[2].forEach(k=>{if(!keys.includes(k))keys.push(k)}));
+  day.innerHTML=`<div class="dayhead"><span class="date">DAY ${i+1} · ${D.d}</span><h2>${esc(D.t)}</h2><span class="transit">🚇 ${esc(D.tr)}</span></div>
+  <figure class="map" style="margin:0">${drawMap(keys,D.focus)}<figcaption class="mapcap"><span>${drawMap.outs.length?esc(drawMap.outs.join(" · ")):"แตะหมุดเพื่อดูรายละเอียด"}</span><span>${keys.length} จุด</span></figcaption></figure>
+  <h3 class="sub">สถานที่วันนี้</h3>
+  <ol class="stops">${keys.map((k,n)=>`<li class="stop" id="stop${n}"><span class="num">${n+1}</span><div class="txt"><div class="name">${esc(P[k][1])}<span class="zh">${esc(P[k][0])}</span></div><p>${esc(P[k][4])}</p>${amapLink(k,"เปิดใน AMap")}</div></li>`).join("")}</ol>
+  <h3 class="sub">ตารางเวลา</h3>
+  <ol class="tl">${D.items.map(([t,x,ks])=>`<li><span class="time">${t.replace("–","<br>–")}</span><div class="body"><p>${esc(x)}${ks.length?`<span class="refs">${ks.map(k=>`<span>${keys.indexOf(k)+1}</span>`).join("")}</span>`:""}</p></div></li>`).join("")}</ol>
+  ${D.note?`<div class="note"><h3>⏱ ${esc(D.note[0])}</h3><p>${esc(D.note[1])}</p></div>`:""}`;
+  day.querySelectorAll(".mk").forEach(m=>{
+    const go=()=>highlight(+m.dataset.i,true);
+    m.addEventListener("click",go);
+    m.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
+  });
+  day.classList.remove("anim");void day.offsetWidth;day.classList.add("anim");
+  try{localStorage.setItem("qd-day",i)}catch(e){}
+}
+DAYS.forEach((D,i)=>{const b=document.createElement("button");b.className="chip";b.id="chip"+i;b.type="button";
+  b.innerHTML=`<b>Day ${i+1}</b><small>${D.d}</small>`;b.onclick=()=>show(i);chips.appendChild(b)});
+let start=0;try{const s=+localStorage.getItem("qd-day");if(s>=0&&s<8)start=s}catch(e){}
+const h=(location.hash.match(/^#day([1-8])$/)||[])[1];if(h)start=h-1;
+show(start);
+</script>
+</body>
+</html>
