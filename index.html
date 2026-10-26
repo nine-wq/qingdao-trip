@@ -5,9 +5,25 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>ชิงเต่า 8 วัน 7 คืน</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Sarabun:wght@400;500;700&display=swap">
+<meta name="theme-color" content="#14628f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ชิงเต่า">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
+@font-face{font-family:"Mitr";font-weight:500;font-style:normal;font-display:swap;src:url(fonts/mitr-thai-500-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:"Mitr";font-weight:500;font-style:normal;font-display:swap;src:url(fonts/mitr-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Mitr";font-weight:600;font-style:normal;font-display:swap;src:url(fonts/mitr-thai-600-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:"Mitr";font-weight:600;font-style:normal;font-display:swap;src:url(fonts/mitr-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Sarabun";font-weight:400;font-style:normal;font-display:swap;src:url(fonts/sarabun-thai-400-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:"Sarabun";font-weight:400;font-style:normal;font-display:swap;src:url(fonts/sarabun-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Sarabun";font-weight:500;font-style:normal;font-display:swap;src:url(fonts/sarabun-thai-500-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:"Sarabun";font-weight:500;font-style:normal;font-display:swap;src:url(fonts/sarabun-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Sarabun";font-weight:700;font-style:normal;font-display:swap;src:url(fonts/sarabun-thai-700-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:"Sarabun";font-weight:700;font-style:normal;font-display:swap;src:url(fonts/sarabun-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 /* Layout: one-column phone itinerary — sticky day strip, day map, numbered stops, timeline, reference sections */
 :root{
   --bg:#f3f6f8; --surface:#ffffff; --ink:#14232e; --muted:#5d6f7b; --line:#d9e2e8;
@@ -112,6 +128,17 @@ tr.total td{border-bottom:none;font-weight:700;color:var(--roof);padding-top:12p
 footer{color:var(--muted);font-size:13px;text-align:center;padding-bottom:24px}
 @media (prefers-reduced-motion:no-preference){#day.anim{animation:fade .25s ease}}
 @keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.install{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:8px}
+.install h3{margin:0;font-family:var(--display);font-weight:500;font-size:17px}
+.install p,.install ol{margin:0;color:var(--muted)}
+.install ol{padding-left:20px;display:grid;gap:2px}
+.install .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.install button{font:inherit;font-weight:500;border:0;border-radius:10px;padding:8px 16px;background:var(--roof);color:#fff;cursor:pointer}
+.install button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:500;border-radius:999px;padding:3px 12px;width:fit-content}
+.status.ok{background:var(--sea-soft);color:var(--sea)}
+.status.wait{background:var(--roof-soft);color:var(--roof)}
 </style>
 </head>
 <body>
@@ -132,6 +159,12 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding-bottom:24px}
 <nav class="days" aria-label="เลือกวัน"><div class="wrap" id="chips"></div></nav>
 
 <main><div class="wrap">
+  <section class="install" id="install" hidden>
+    <h3>ติดตั้งลงมือถือ ใช้ได้แม้ไม่มีเน็ต</h3>
+    <span class="status wait" id="offline-status">กำลังเตรียมใช้งานออฟไลน์…</span>
+    <ol id="install-steps"></ol>
+    <div class="row"><button type="button" id="install-btn" hidden>ติดตั้งแอป</button><button type="button" class="ghost" id="install-hide">ซ่อน</button></div>
+  </section>
   <section id="day" aria-live="polite"></section>
 
   <section class="ref">
@@ -354,6 +387,27 @@ DAYS.forEach((D,i)=>{const b=document.createElement("button");b.className="chip"
 let start=0;try{const s=+localStorage.getItem("qd-day");if(s>=0&&s<8)start=s}catch(e){}
 const h=(location.hash.match(/^#day([1-8])$/)||[])[1];if(h)start=h-1;
 show(start);
+
+/* ---------- ติดตั้ง & ออฟไลน์ ---------- */
+(function(){
+  const box=document.getElementById("install"),st=document.getElementById("offline-status"),
+        steps=document.getElementById("install-steps"),btn=document.getElementById("install-btn");
+  const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+  let hidden=false;try{hidden=localStorage.getItem("qd-install-hide")==="1"}catch(e){}
+  if(!standalone&&!hidden&&location.protocol.startsWith("http"))box.hidden=false;
+  steps.innerHTML=IOS
+    ?"<li>เปิดหน้านี้ใน <b>Safari</b></li><li>แตะปุ่มแชร์ (สี่เหลี่ยมมีลูกศรชี้ขึ้น)</li><li>เลือก <b>เพิ่มไปยังหน้าจอโฮม</b></li>"
+    :"<li>เปิดหน้านี้ใน <b>Chrome</b></li><li>แตะเมนู ⋮ มุมขวาบน</li><li>เลือก <b>ติดตั้งแอป</b> หรือ <b>เพิ่มลงในหน้าจอหลัก</b></li>";
+  document.getElementById("install-hide").onclick=()=>{box.hidden=true;try{localStorage.setItem("qd-install-hide","1")}catch(e){}};
+  let deferred=null;
+  addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;btn.hidden=false});
+  btn.onclick=async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;btn.hidden=true};
+  addEventListener("appinstalled",()=>{box.hidden=true});
+  const ready=()=>{st.className="status ok";st.textContent="✓ พร้อมใช้งานออฟไลน์แล้ว"};
+  if("serviceWorker" in navigator&&location.protocol.startsWith("http")){
+    navigator.serviceWorker.register("sw.js").then(()=>navigator.serviceWorker.ready).then(ready).catch(()=>{st.textContent="เบราว์เซอร์นี้ยังใช้งานออฟไลน์ไม่ได้"});
+  }else{st.hidden=true}
+})();
 </script>
 </body>
 </html>
