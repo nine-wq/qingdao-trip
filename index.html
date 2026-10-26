@@ -187,7 +187,7 @@ const P={
  jimiyaport:["积米崖港","ท่าเรือ Jimiya",35.936,120.122,"ท่าเรือเฟอร์รี่ไปเกาะหลิงซาน ควรมาถึงก่อนเรือออกอย่างน้อย 20 นาที"],
  lingshan:["灵山岛","เกาะหลิงซาน",35.772,120.172,"เกาะภูเขากลางทะเลที่สูงที่สุดแห่งหนึ่งของจีนตอนเหนือ เป็นอุทยานธรณีวิทยา มีหน้าผาหินชั้นสีสันแปลกตาและเส้นทางเดินรอบเกาะ"],
  shell:["灵山岛贝壳楼","บ้านเปลือกหอย",35.764,120.178,"บ้านบนเกาะที่ผนังประดับด้วยเปลือกหอยจำนวนมาก จุดแวะถ่ายรูประหว่างเดินรอบเกาะ"],
- citigo:["城家酒店 唐岛湾","CitiGO Hotel Tangdaowan",35.952,120.170,"ที่พักคืนนี้ฝั่งอ่าวถังเต่า ใกล้ท่าเรือ ไม่ต้องย้อนเข้าเมืองหลังเดินเกาะ"],
+ citigo:["城家公寓 唐岛湾店","CitiGO Hotel Tangdaowan",35.952,120.170,"ที่พักคืนนี้ฝั่งอ่าวถังเต่า ใกล้ท่าเรือ ไม่ต้องย้อนเข้าเมืองหลังเดินเกาะ"],
  maidao:["麦岛站","สถานี Maidao",36.0635,120.4255,"สถานี Metro สาย 2 เดินต่อลงทะเลราว 15 นาทีถึงเกาะเสี่ยวม่าย"],
  xiaomai:["小麦岛","เกาะเสี่ยวม่าย",36.0540,120.4330,"เกาะเล็กเชื่อมฝั่งด้วยถนน เป็นเนินหญ้าโล่งริมทะเล มองเห็นเส้นขอบฟ้าเมืองใหม่ เข้าฟรี"],
  olympic:["奥帆中心","ศูนย์เรือใบโอลิมปิก",36.0535,120.3885,"สนามแข่งเรือใบโอลิมปิก 2008 ท่าจอดเรือยอชต์ริมอ่าวฝูซาน ทางเดินเลียบทะเลวิวตึกสูง"],
@@ -243,13 +243,35 @@ const PIN='<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><p
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const UA=navigator.userAgent||"";
 const IOS=/iPhone|iPad|iPod/i.test(UA)||(/Macintosh/.test(UA)&&"ontouchend" in document),AND=/Android/i.test(UA);
-const kw=k=>{const z=P[k][0];return /青岛|胶东|崂山|灵山/.test(z)?z:"青岛 "+z};
-const appUrl=k=>{const q=encodeURIComponent(kw(k));
+// ลิงก์แชร์จากแอป AMap เปิดตรงสถานที่นั้นเลย (เพิ่มได้เรื่อยๆ)
+const SHARE={
+ airport:"https://surl.amap.com/1BSdrkCmucZG",
+ qdnorth:"https://surl.amap.com/1TR4a2J01sfeX",
+ qdst:"https://surl.amap.com/2B0g39GGmc8m",
+ zhanqiao:"https://surl.amap.com/33fAAeGKK64X",
+ stmichael:"https://surl.amap.com/33gXb6N416egj",
+ zhongshan:"https://surl.amap.com/1SEfg0MC1p3ai",
+ atour:"https://surl.amap.com/2ASRpyp43cwD",
+ mercure:"https://surl.amap.com/2ATzO3Ye1k1Wz",
+ jimiya:"https://surl.amap.com/2B5kp6nw2dbu"
+};
+// คำค้นแบบเจาะจง สำหรับจุดที่ยังไม่มีลิงก์แชร์
+const KW={
+ puli:"浦里地铁站",yangkouvc:"崂山仰口游客服务中心",yangkou:"崂山仰口景区",qingshan:"青山渔村",
+ jimiyaport:"积米崖港",lingshan:"灵山岛",shell:"灵山岛贝壳楼",citigo:"城家公寓青岛唐岛湾店",
+ maidao:"麦岛地铁站",xiaomai:"小麦岛",olympic:"青岛奥林匹克帆船中心",lovers:"情人坝",
+ huiquan:"汇泉广场地铁站",xiaoyushan:"小鱼山公园",badaguan:"八大关",huashi:"花石楼",
+ taidongst:"台东地铁站",beer:"青岛啤酒博物馆",yingkou:"营口路农贸市场",dahedong:"大河东地铁站",
+ jufeng:"崂山巨峰游览区",taidong:"台东步行街"
+};
+const kw=k=>KW[k]||P[k][0];
+const appUrl=k=>{if(SHARE[k])return SHARE[k];const q=encodeURIComponent(kw(k));
   if(IOS)return"iosamap://poi?sourceApplication=qingdaoguide&name="+q+"&dev=0";
   if(AND)return"androidamap://poi?sourceApplication=qingdaoguide&keywords="+q+"&dev=0";
   return webUrl(k)};
-const webUrl=k=>"https://uri.amap.com/search?keyword="+encodeURIComponent(kw(k))+"&city=370200&view=map&src=qingdaoguide";
-const amapLink=(k,label)=>`<span class="act"><a class="amap" href="${appUrl(k)}" ${IOS||AND?"":'target="_blank" rel="noopener"'}>${PIN}${esc(label||P[k][1])}</a><button type="button" class="cp" data-zh="${esc(P[k][0])}">คัดลอก ${esc(P[k][0])}</button><a class="web" href="${webUrl(k)}" target="_blank" rel="noopener">เว็บ</a></span>`;
+const webUrl=k=>SHARE[k]||"https://uri.amap.com/search?keyword="+encodeURIComponent(kw(k))+"&city=370200&view=map&src=qingdaoguide";
+const amapLink=(k,label)=>{const s=!!SHARE[k],blank=s||!(IOS||AND);
+  return `<span class="act"><a class="amap" href="${appUrl(k)}" ${blank?'target="_blank" rel="noopener"':""}>${PIN}${esc(label||P[k][1])}</a><button type="button" class="cp" data-zh="${esc(kw(k))}">คัดลอก ${esc(kw(k))}</button>${s?"":`<a class="web" href="${webUrl(k)}" target="_blank" rel="noopener">เว็บ</a>`}</span>`};
 document.addEventListener("click",async e=>{const b=e.target.closest(".cp");if(!b)return;
   const t=b.dataset.zh,orig=b.textContent;
   try{await navigator.clipboard.writeText(t);b.textContent="คัดลอกแล้ว ✓"}
